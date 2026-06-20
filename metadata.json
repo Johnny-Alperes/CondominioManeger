@@ -1,0 +1,6 @@
+{
+  "name": "Condomínio Maneger",
+  "description": "Sistema completo para gestão operacional de portaria, controle de moradores, visitantes, veículos, escalas de turnos e segurança condominial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
