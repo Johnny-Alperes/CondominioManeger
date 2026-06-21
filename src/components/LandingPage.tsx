@@ -238,8 +238,8 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
               <div className="relative">
                 <div className="rounded-3xl overflow-hidden shadow-2xl shadow-sky-500/10 border border-slate-800">
                   <img
-                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80"
-                    alt="Condomínio moderno"
+                    src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80"
+                    alt="Dashboard tecnológico"
                     className="w-full h-auto object-cover"
                   />
                 </div>
