@@ -112,7 +112,7 @@ export default function LoginPage({ onSuccess, onCancel }: LoginPageProps) {
           <p className="text-xs text-slate-500 mt-1">
             {isSignUp 
               ? 'Inscreva-se para administrar seu condomínio com excelência.' 
-              : 'Faça login com sua conta ou utilize admin@condomaneger.com / admin123'}
+              : 'Faça login com sua conta para acessar o painel.'}
           </p>
         </div>
 
