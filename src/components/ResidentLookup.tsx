@@ -474,40 +474,52 @@ export default function ResidentLookup({
         
         {/* Plantão Status Guard overview */}
         <section className="bg-slate-950 text-white rounded-3xl p-6 shadow-md border border-slate-900 flex flex-col justify-between min-h-[200px]">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg tracking-widest">
-                Portaria Ativa
-              </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Porteiro do Dia
-              </span>
-            </div>
+          {activeShift ? (
+            <>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg tracking-widest">
+                    Portaria Ativa
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Porteiro do Dia
+                  </span>
+                </div>
 
-            <div className="flex items-center gap-3.5">
-              <img 
-                className="w-12 h-12 rounded-full object-cover border-2 border-slate-800" 
-                src={activeShift?.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuDdrom_lII-QF57cj52nr-aYsAwKAf4cy66Fs_MXCYxnXWUiRvQs_6La6Vc-BZxV-5O4zTS-nVjq5TYF4F6RUloFUxmmeB18CobF_80sYlj1DpFib4YuYsV_xM1rgzxeNQmLLVaCmrdmsQrod9fB1U_7utSs-G4BM9AZ4bFzR3DhvkMol3t0C3JChoMneet3MvhatAJiEnfaeBH5MCIEj70AHJEThdQ7CqAWrMOr4fEGMnCQ1gYeX6nfxxuYwVLvwVnRu3d2jc6Omg"}
-                alt={`${activeShift?.name || "Marcos V. Santos"} Profile`}
-                referrerPolicy="no-referrer"
-              />
-              <div className="text-left">
-                <h5 className="font-bold text-sm text-white">{activeShift?.name || "Marcos V. Santos"}</h5>
-                <p className="text-xs text-slate-400">{activeShift?.role || "Supervisor de Segurança"}</p>
+                <div className="flex items-center gap-3.5">
+                  <img 
+                    className="w-12 h-12 rounded-full object-cover border-2 border-slate-800" 
+                    src={activeShift.avatar}
+                    alt={`${activeShift.name} Profile`}
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="text-left">
+                    <h5 className="font-bold text-sm text-white">{activeShift.name}</h5>
+                    <p className="text-xs text-slate-400">{activeShift.role}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-900 flex flex-col gap-2 text-xs text-slate-400 font-medium">
+                <div className="flex items-center justify-between">
+                  <span>Posto Atual:</span>
+                  <span className="font-bold text-white font-mono">{activeShift.location}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Horário:</span>
+                  <span className="font-bold text-white font-mono">{activeShift.hours}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-500">
+              <ShieldAlert className="w-8 h-8 text-slate-600" />
+              <div className="text-center">
+                <p className="text-sm font-bold text-slate-400">Nenhum Plantão Ativo</p>
+                <p className="text-xs text-slate-600 mt-1">Cadastre um turno em Gestão de Turnos</p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-900 flex flex-col gap-2 text-xs text-slate-400 font-medium">
-            <div className="flex items-center justify-between">
-              <span>Posto Atual:</span>
-              <span className="font-bold text-white font-mono">{activeShift?.location || "Portaria Principal"}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Horário:</span>
-              <span className="font-bold text-white font-mono">{activeShift?.hours || "06:00 - 18:00"}</span>
-            </div>
-          </div>
+          )}
         </section>
 
         {/* Dynamic call history log list */}
