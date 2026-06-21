@@ -54,7 +54,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
         </div>
         <nav className="hidden md:flex items-center gap-3">
           {isLoggedIn ? (
-            <button onClick={onStartConfig} className="text-xs text-zinc-300 hover:text-white uppercase tracking-widest transition-colors">{condoConfig.name || 'Condomínio'}</button>
+            <button onClick={onEnterApp} className="text-xs text-zinc-300 hover:text-white uppercase tracking-widest transition-colors">{condoConfig.name || 'Condomínio'}</button>
           ) : (
             <button onClick={onStartConfig} className="text-xs text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">Acessar</button>
           )}
