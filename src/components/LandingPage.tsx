@@ -161,8 +161,8 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
         }} />
 
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 w-full">
-          <div className="flex justify-center">
-            <div className="space-y-8 max-w-2xl text-center">
+          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
+            <div className="space-y-8">
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -228,7 +228,25 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
               </motion.div>
             </div>
 
-
+            {/* Right - Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="hidden lg:block relative"
+            >
+              <div className="relative">
+                <div className="rounded-3xl overflow-hidden shadow-2xl shadow-sky-500/10 border border-slate-800">
+                  <img
+                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80"
+                    alt="Condomínio moderno"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+                {/* Glow effect */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-sky-500/20 to-violet-500/20 rounded-3xl blur-2xl -z-10" />
+              </div>
+            </motion.div>
           </div>
         </div>
 
