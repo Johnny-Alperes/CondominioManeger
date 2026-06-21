@@ -125,13 +125,10 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
             </button>
           </div>
         </div>
-        <span className="absolute bottom-6 right-6 text-white text-[9px] uppercase tracking-[0.15em]">
-          NPX Soluções Tecnológicas
-        </span>
       </main>
 
       <footer className="relative z-10 flex items-center justify-between px-6 h-12 border-t border-zinc-800 text-[9px] text-zinc-700 uppercase tracking-[0.15em]">
-        <span>&copy; 2026</span>
+        <span>&copy; 2026 — NPX Soluções Tecnológicas</span>
         <span>NPX</span>
       </footer>
     </div>
