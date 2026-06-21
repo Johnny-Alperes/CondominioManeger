@@ -299,8 +299,11 @@ export default function App() {
             setIsLoggedIn(true);
             localStorage.setItem('condo_is_logged_in', 'true');
             setToastMessage(`Login realizado com sucesso! Bem-vindo!`);
-            setActiveView('WIZARD');
-            localStorage.setItem('condo_active_view', 'WIZARD');
+            const savedConfig = localStorage.getItem('condo_config');
+            const isConfigured = savedConfig ? JSON.parse(savedConfig).isConfigured : false;
+            const nextView = isConfigured ? 'CONSOLE' : 'WIZARD';
+            setActiveView(nextView);
+            localStorage.setItem('condo_active_view', nextView);
           }}
           onCancel={() => {
             setActiveView('LANDING');
