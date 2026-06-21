@@ -1,4 +1,4 @@
-import { Shield, Menu, X, Mail, Lock } from 'lucide-react';
+import { Shield, Menu, X, Mail, Lock, User, UserPlus } from 'lucide-react';
 import { CondoConfig } from '../types';
 import { useState } from 'react';
 
@@ -25,6 +25,39 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpError, setSignUpError] = useState('');
+  const [signUpSuccess, setSignUpSuccess] = useState('');
+
+  const handleSignUp = () => {
+    setSignUpError('');
+    setSignUpSuccess('');
+    if (!signUpName || !signUpEmail || !signUpPassword) {
+      setSignUpError('Preencha todos os campos.');
+      return;
+    }
+    if (signUpPassword.length < 6) {
+      setSignUpError('A senha deve conter pelo menos 6 caracteres.');
+      return;
+    }
+    const raw = localStorage.getItem('condo_registered_users');
+    const users = raw ? JSON.parse(raw) : [];
+    const exists = users.some((u: any) => u.email.toLowerCase() === signUpEmail.toLowerCase());
+    if (exists) {
+      setSignUpError('Este e-mail já está cadastrado.');
+      return;
+    }
+    users.push({ name: signUpName, email: signUpEmail.toLowerCase(), password: signUpPassword });
+    localStorage.setItem('condo_registered_users', JSON.stringify(users));
+    setSignUpSuccess('Conta criada com sucesso! Faça login.');
+    setSignUpName('');
+    setSignUpEmail('');
+    setSignUpPassword('');
+  };
 
   const handleLogin = () => {
     setLoginError('');
@@ -106,25 +139,83 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
       )}
 
       <main className="relative z-10 flex-1 flex items-center justify-center p-6">
-        <div className="text-center space-y-6">
-          <span className="text-xs text-zinc-300 tracking-[0.3em] uppercase">Portaria Inteligente</span>
-          <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
-            SEU<br />
-            <span className="text-zinc-500">CONDOMÍNIO</span><br />
-            NO CONTROLE
-          </h1>
-          <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
-            Reconhecimento de placas, liberação remota e relatórios automáticos em um painel.
-          </p>
-          <div className="flex gap-3 pt-2 justify-center">
-            <button onClick={onStartConfig} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
-              Cadastrar Novo Condomínio
-            </button>
-            <button onClick={onEnterApp} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
-              Cadastrar-se
+        {showSignUp ? (
+          <div className="w-full max-w-sm mx-auto space-y-5">
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-black text-white tracking-tight">Criar Conta</h2>
+              <p className="text-xs text-zinc-400 mt-1">Inscreva-se para administrar seu condomínio.</p>
+            </div>
+
+            {signUpError && (
+              <div className="bg-red-900/40 border border-red-700 text-red-300 text-[10px] px-3 py-2 text-center tracking-wider uppercase">{signUpError}</div>
+            )}
+            {signUpSuccess && (
+              <div className="bg-emerald-900/40 border border-emerald-700 text-emerald-300 text-[10px] px-3 py-2 text-center tracking-wider uppercase">{signUpSuccess}</div>
+            )}
+
+            <div className="space-y-3">
+              <div className="relative">
+                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                <input
+                  type="text"
+                  placeholder="Nome completo"
+                  value={signUpName}
+                  onChange={e => setSignUpName(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
+                />
+              </div>
+              <div className="relative">
+                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                <input
+                  type="email"
+                  placeholder="E-mail"
+                  value={signUpEmail}
+                  onChange={e => setSignUpEmail(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
+                />
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                <input
+                  type="password"
+                  placeholder="Senha (mín. 6 caracteres)"
+                  value={signUpPassword}
+                  onChange={e => setSignUpPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSignUp()}
+                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
+                />
+              </div>
+              <button onClick={handleSignUp} className="w-full bg-white text-zinc-950 py-2.5 text-xs font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest flex items-center justify-center gap-2">
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Registrar Conta</span>
+              </button>
+            </div>
+
+            <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); }} className="block mx-auto text-[10px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">
+              Voltar
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="text-center space-y-6">
+            <span className="text-xs text-zinc-300 tracking-[0.3em] uppercase">Portaria Inteligente</span>
+            <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
+              SEU<br />
+              <span className="text-zinc-500">CONDOMÍNIO</span><br />
+              NO CONTROLE
+            </h1>
+            <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
+              Reconhecimento de placas, liberação remota e relatórios automáticos em um painel.
+            </p>
+            <div className="flex gap-3 pt-2 justify-center">
+              <button onClick={onStartConfig} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
+                Cadastrar Novo Condomínio
+              </button>
+              <button onClick={() => setShowSignUp(true)} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
+                Cadastrar-se
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="relative z-10 flex items-center justify-between px-6 h-12 border-t border-zinc-800 text-[9px] text-zinc-700 uppercase tracking-[0.15em]">
