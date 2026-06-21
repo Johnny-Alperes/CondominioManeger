@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, useSpring } from 'motion/react';
-import { Shield, ArrowRight, ChevronDown, Menu, X, Building2, Users, Car, Camera, BellRing, Clock, Fingerprint, BarChart3, Sparkles, CheckCircle, Github, Twitter, Instagram, Phone, MapPin, Key, Wifi, Zap, Sun, Moon, Eye } from 'lucide-react';
+import { Shield, ArrowRight, Menu, X, Camera, Users, Car, Wifi, Zap, Fingerprint, BellRing, BarChart3, Clock, Building2, ChevronDown, Play, Pause, Activity, Radio, Scan, Key, Maximize2 } from 'lucide-react';
 import { CondoConfig } from '../types';
-import { useState, useRef, useEffect, type ReactNode, type MouseEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface LandingPageProps {
   isLoggedIn: boolean;
@@ -11,526 +11,400 @@ interface LandingPageProps {
   condoConfig: CondoConfig;
 }
 
-function useMousePosition() {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const handler = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
-  }, []);
-  return pos;
+function LiveFeed({ onCountChange }: { onCountChange?: (n: number) => void }) {
+  const entries = [
+    { plate: 'BRA2E19', model: 'VW T-Cross', unit: 'Bl A • Ap 42', status: 'LIBERADO' },
+    { plate: 'ABC4J67', model: 'Fiat Pulse', unit: 'Bl B • Ap 15', status: 'LIBERADO' },
+    { plate: 'XYZ3K12', model: 'Honda Civic', unit: 'Visitante • Bl A', status: 'AGENDADO' },
+    { plate: 'QRS7M90', model: 'Chevrolet Onix', unit: 'Bl C • Ap 08', status: 'LIBERADO' },
+    { plate: 'JKL5N34', model: 'Toyota Corolla', unit: 'Bl A • Ap 33', status: 'LIBERADO' },
+    { plate: 'MNO8P22', model: 'Ford Ranger', unit: 'Bl B • Ap 21', status: 'PENDENTE' },
+    { plate: 'GHI1Q56', model: 'Renault Kwid', unit: 'Visitante • Bl C', status: 'NEGADO' },
+    { plate: 'DEF9R78', model: 'Hyundai HB20', unit: 'Bl C • Ap 05', status: 'LIBERADO' },
+  ];
+  const count = 5;
+  useEffect(() => { onCountChange?.(count); }, []);
+  const shown = entries.slice(0, count);
+  return (
+    <div className="space-y-1 font-mono">
+      <div className="flex items-center justify-between text-[9px] uppercase tracking-[0.15em] text-slate-500 pb-2 border-b border-slate-800 mb-2">
+        <span className="w-[90px]">Placa</span>
+        <span className="w-[90px]">Modelo</span>
+        <span className="w-[110px] hidden sm:block">Unidade</span>
+        <span className="w-[60px] text-right">Status</span>
+      </div>
+      {shown.map((item) => (
+        <div key={item.plate} className="flex items-center justify-between py-2 text-[11px] border-b border-slate-800/50 last:border-0">
+          <span className="w-[90px] font-bold tracking-widest text-white">{item.plate}</span>
+          <span className="w-[90px] text-slate-400">{item.model}</span>
+          <span className="w-[110px] text-slate-500 hidden sm:block">{item.unit}</span>
+          <span className={`w-[60px] text-right font-bold text-[10px] ${
+            item.status === 'LIBERADO' ? 'text-emerald-400' :
+            item.status === 'AGENDADO' ? 'text-sky-400' :
+            item.status === 'NEGADO' ? 'text-red-400' : 'text-amber-400'
+          }`}>{item.status}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
-function GlowCard({ children, className = '' }: { children: ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-
-  const handleMouse = (e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    setRotateX((y - centerY) / 20);
-    setRotateY((x - centerX) / 20);
-  };
-
-  const handleLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
-  };
-
+function AnimatedCounter({ value, label }: { value: string; label: string }) {
   return (
-    <div
-      ref={ref}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      className={`transition-transform duration-200 ease-out ${className}`}
-      style={{ perspective: '1000px', transform: `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)` }}
-    >
-      {children}
+    <div>
+      <span className="text-2xl md:text-3xl font-bold text-white tabular-nums">{value}</span>
+      <span className="text-[10px] text-slate-500 block mt-0.5">{label}</span>
     </div>
   );
 }
 
 export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onLogout, condoConfig }: LandingPageProps) {
   const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.12], [1, 0.97]);
+  const opacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const mousePos = useMousePosition();
+  const [pulse, setPulse] = useState(true);
 
-  const features = [
-    { icon: Camera, title: 'Reconhecimento de Placas', desc: 'Câmeras OCR identificam veículos em tempo real — morador liberado sem parar.', color: 'from-emerald-400 to-teal-500', stats: '0.3s' },
-    { icon: Fingerprint, title: 'Portaria Remota', desc: 'Libere visitantes pelo celular. Vídeo, áudio e interfone direto no painel.', color: 'from-violet-400 to-purple-500', stats: '100%' },
-    { icon: Users, title: 'Banco de Moradores', desc: 'Cadastro completo com veículos, fotos e contatos. Tudo centralizado.', color: 'from-sky-400 to-cyan-500', stats: 'Ilimitado' },
-    { icon: BellRing, title: 'Alertas Inteligentes', desc: 'Notificações push para entregas, visitas e ocorrências em tempo real.', color: 'from-amber-400 to-orange-500', stats: 'Push' },
-    { icon: BarChart3, title: 'Relatórios Automáticos', desc: 'Dashboard com fluxo de visitantes, picos de movimento e histórico completo.', color: 'from-rose-400 to-pink-500', stats: '24h' },
-    { icon: Clock, title: 'Gestão de Porteiros', desc: 'Escala digital, troca de turnos e ronda com check-in por QR Code.', color: 'from-indigo-400 to-blue-500', stats: 'QR' },
-  ];
-
-  const stats = [
-    { value: '2.000+', label: 'Condomínios Ativos', icon: Building2 },
-    { value: '50mil+', label: 'Acessos Liberados/Dia', icon: Car },
-    { value: '99.9%', label: 'Tempo Online', icon: Wifi },
-    { value: '3s', label: 'Tempo Médio de Abertura', icon: Zap },
-  ];
-
-  const numbers = [
-    { value: 'R$ 0', label: 'Taxa de setup' },
-    { value: '5 min', label: 'Tempo de configuração' },
-    { value: '1', label: 'Sistema completo' },
-    { value: '∞', label: 'Moradores e veículos' },
-  ];
+  useEffect(() => {
+    const t = setInterval(() => setPulse(p => !p), 2000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen selection:bg-sky-500/30 overflow-x-hidden">
+    <div className="bg-[#0a0a0c] text-white min-h-screen selection:bg-sky-500/40 overflow-x-hidden font-sans antialiased">
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-8px) rotate(0.5deg); }
-          66% { transform: translateY(4px) rotate(-0.3deg); }
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
         }
-        @keyframes dash {
-          to { stroke-dashoffset: -24; }
+        @keyframes flicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.85; }
         }
-        @keyframes grid-shift {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(24px, 24px); }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
-        @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
-          70% { box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        @keyframes radar-sweep {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
 
       <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
         className="fixed top-0 left-0 right-0 z-50"
       >
         <div className="mx-auto max-w-[1400px] px-6">
-          <div className="flex justify-between items-center h-16 md:h-20">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 flex items-center justify-center shadow-lg shadow-sky-500/20 relative" style={{ animation: 'pulse-ring 2s infinite' }}>
-                <Shield className="w-5 h-5 text-white" />
+          <div className="flex justify-between items-center h-16 md:h-20 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-[4px] bg-white text-[#0a0a0c] flex items-center justify-center">
+                <Shield className="w-4 h-4" />
               </div>
-              <span className="text-lg font-extrabold text-white tracking-tight">Condomínio <span className="text-sky-400">Maneger</span></span>
+              <span className="text-sm font-bold tracking-tight uppercase text-white/80"><span className="text-white">CONDOMINIO</span> MANAGER</span>
+              <span className="hidden sm:inline-flex text-[9px] uppercase tracking-[0.15em] text-slate-600 border border-slate-800 px-2 py-0.5 rounded-[2px]">v2.0</span>
             </div>
 
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Funcionalidades</a>
-              <a href="#numbers" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Números</a>
-              <a href="#depoimentos" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Depoimentos</a>
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#monitor" className="text-[11px] font-semibold text-slate-400 hover:text-white tracking-wider uppercase transition-colors">Monitor</a>
+              <a href="#cobertura" className="text-[11px] font-semibold text-slate-400 hover:text-white tracking-wider uppercase transition-colors">Cobertura</a>
               {condoConfig.isConfigured && (
-                <button onClick={onEnterApp} className="text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors">
-                  {condoConfig.name}
-                </button>
+                <button onClick={onEnterApp} className="text-[11px] font-semibold text-sky-400 hover:text-sky-300 uppercase tracking-wider transition-colors">{condoConfig.name}</button>
               )}
               {isLoggedIn ? (
-                <button onClick={onLogout} className="border border-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 hover:text-white transition-all active:scale-95">
-                  Sair
-                </button>
+                <button onClick={onLogout} className="text-[11px] font-semibold text-red-400 hover:text-red-300 uppercase tracking-wider border border-slate-800 px-4 py-2 rounded-[4px] hover:bg-white/5 transition-all">Sair</button>
               ) : (
-                <button onClick={onStartConfig} className="bg-white text-slate-950 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all shadow-lg shadow-white/10 active:scale-95">
-                  Fazer Login
-                </button>
+                <button onClick={onStartConfig} className="text-[11px] font-bold text-[#0a0a0c] bg-white px-5 py-2.5 rounded-[4px] hover:bg-white/90 transition-all uppercase tracking-wider">Acessar Sistema</button>
               )}
             </nav>
 
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-300 hover:text-white">
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-400 hover:text-white">
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
-
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-slate-800">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="md:hidden bg-[#0a0a0c]/95 backdrop-blur-xl border-b border-white/5">
             <div className="px-6 py-4 space-y-3">
-              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Funcionalidades</a>
-              <a href="#numbers" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Números</a>
-              <a href="#depoimentos" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Depoimentos</a>
-              {condoConfig.isConfigured && (
-                <button onClick={() => { setMobileMenuOpen(false); onEnterApp(); }} className="block text-sm font-semibold text-sky-400 py-2">{condoConfig.name}</button>
-              )}
+              <a href="#monitor" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-slate-300 hover:text-white py-2">Monitor</a>
+              <a href="#cobertura" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-slate-300 hover:text-white py-2">Cobertura</a>
+              {condoConfig.isConfigured && <button onClick={() => { setMobileMenuOpen(false); onEnterApp(); }} className="block text-sm text-sky-400 py-2">{condoConfig.name}</button>}
               {isLoggedIn ? (
-                <button onClick={() => { setMobileMenuOpen(false); onLogout(); }} className="w-full border border-slate-700 text-slate-300 px-5 py-3 rounded-xl text-sm font-bold hover:bg-slate-800">Sair</button>
+                <button onClick={() => { setMobileMenuOpen(false); onLogout(); }} className="w-full border border-slate-700 text-slate-300 px-5 py-3 rounded text-sm font-bold hover:bg-slate-800">Sair</button>
               ) : (
-                <button onClick={() => { setMobileMenuOpen(false); onStartConfig(); }} className="w-full bg-white text-slate-950 px-5 py-3 rounded-xl text-sm font-bold">Fazer Login</button>
+                <button onClick={() => { setMobileMenuOpen(false); onStartConfig(); }} className="w-full bg-white text-black px-5 py-3 rounded text-sm font-bold">Acessar Sistema</button>
               )}
             </div>
           </motion.div>
         )}
       </motion.header>
 
-      <motion.section style={{ opacity: heroOpacity, scale: heroScale }} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,#0f172a_0%,transparent_70%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_80%,#1e1b4b_0%,transparent_50%)]" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '8s' }} />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '6s' }} />
-          <div className="absolute inset-0 opacity-[0.02]" style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
-            animation: 'grid-shift 8s linear infinite',
+      <section id="monitor" className="relative min-h-screen flex items-center pt-20">
+        <div className="absolute inset-0 bg-black">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 25% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
+                              radial-gradient(circle at 75% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 50%)`,
+          }} />
+          <div className="absolute inset-0 opacity-[0.015]" style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px)`,
+            backgroundSize: '100% 4px',
           }} />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[1400px] px-6 w-full">
-          <div className="grid lg:grid-cols-5 gap-12 md:gap-16 items-center">
-            <div className="lg:col-span-3 space-y-8">
-              <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="space-y-6">
-                <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-xs font-bold text-emerald-400 tracking-wide uppercase">Sistema validado em todo Brasil</span>
-                </div>
-
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-[1.0] tracking-tight">
-                  <span className="text-white">Gestão de </span>
-                  <span className="bg-gradient-to-r from-sky-400 via-violet-400 to-purple-400 bg-clip-text text-transparent inline-block" style={{ animation: 'float 6s ease-in-out infinite' }}>
-                    portaria
-                  </span>
-                  <br />
-                  <span className="text-white">que funciona</span>
-                </h1>
-
-                <p className="text-lg md:text-xl text-slate-400 font-light leading-relaxed max-w-xl">
-                  Controle remoto, liberação por placa e relatórios automáticos. O sistema que síndicos, porteiros e moradores aprovam.
-                </p>
+        <motion.div style={{ opacity }} className="relative z-10 mx-auto max-w-[1400px] px-6 w-full">
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-6 pt-8">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                <span className="text-[10px] font-mono text-emerald-400/80 tracking-[0.2em] uppercase bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 inline-block">
+                  {pulse ? '● Online' : '○ Online'}
+                </span>
               </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }} className="flex flex-wrap gap-4">
-                <button onClick={onStartConfig} className="group relative bg-gradient-to-r from-sky-500 to-violet-500 text-white px-8 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-[0.97] transition-all overflow-hidden">
-                  <span className="relative z-10 flex items-center gap-2">
-                    Começar Agora
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-5xl md:text-7xl lg:text-7xl font-black leading-[0.9] tracking-tight"
+              >
+                <span className="text-white/40 font-light">SEU</span><br />
+                <span className="text-white">CONDOMÍNIO</span><br />
+                <span className="text-white/40 font-light">NO</span><br />
+                <span className="bg-gradient-to-r from-sky-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">CONTROLE</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-sm md:text-base text-slate-500 font-mono leading-relaxed max-w-md"
+              >
+                Portaria com reconhecimento de placas, liberação remota e relatórios automáticos. Tudo que seu condomínio precisa em um painel.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-wrap gap-3 pt-2"
+              >
+                <button onClick={onStartConfig} className="bg-white text-[#0a0a0c] px-7 py-3.5 text-sm font-bold hover:bg-white/90 transition-all flex items-center gap-2 uppercase tracking-wider rounded-[4px]">
+                  Ativar Sistema
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                <button onClick={onEnterApp} className="px-8 py-4 rounded-2xl font-bold text-sm border border-slate-700 text-slate-300 hover:bg-slate-800/50 hover:border-slate-500 active:scale-[0.97] transition-all flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  Ver Painel
+                <button onClick={onEnterApp} className="border border-white/10 text-slate-400 px-7 py-3.5 text-sm font-bold hover:bg-white/5 hover:text-white transition-all uppercase tracking-wider rounded-[4px]">
+                  Acessar Painel
                 </button>
               </motion.div>
+            </div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.4 }}>
-                <div className="grid grid-cols-4 gap-6 pt-4">
-                  {numbers.map((n, i) => (
-                    <div key={i} className="text-center">
-                      <span className="text-2xl md:text-3xl font-black text-white block">{n.value}</span>
-                      <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">{n.label}</span>
-                    </div>
-                  ))}
+            <div className="lg:col-span-7 space-y-6 pt-4">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="bg-[#0d0d0f] border border-white/[0.06] rounded-[4px] overflow-hidden shadow-2xl"
+              >
+                <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-[#0a0a0c]">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-2 text-[10px] text-slate-600 font-mono">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                      POR-01
+                    </span>
+                    <span className="text-[9px] text-slate-700 font-mono hidden sm:inline">Portaria Principal</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[9px] text-slate-700 font-mono uppercase tracking-wider">14:32:19</span>
+                    <Camera className="w-3.5 h-3.5 text-slate-600" />
+                    <Maximize2 className="w-3 h-3 text-slate-700" />
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/[0.04]">
+                    <span className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.15em]">Últimos Acessos</span>
+                    <span className="text-[9px] font-mono text-slate-700">
+                      <Activity className="w-3 h-3 inline mr-1" />
+                      8 registros
+                    </span>
+                  </div>
+                  <LiveFeed />
+                </div>
+                <div className="px-5 py-3 border-t border-white/[0.06] bg-[#0a0a0c] flex items-center justify-between text-[9px] text-slate-700 font-mono">
+                  <span>3 câmeras ativas • 12 veículos hoje</span>
+                  <span>● gravando</span>
                 </div>
               </motion.div>
-            </div>
 
-            <div className="lg:col-span-2 hidden lg:block">
-              <GlowCard>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, rotateY: 5 }}
-                  animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className="relative"
-                >
-                  <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-slate-800/80 p-6 shadow-2xl">
-                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Online</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-600">Portaria Principal</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {[
-                        { plate: 'ABC-1234', model: 'Toyota Corolla', status: 'Liberado', time: '14:32', color: 'emerald' },
-                        { plate: 'XYZ-5678', model: 'Honda Civic', status: 'Visitante', time: '14:28', color: 'amber' },
-                        { plate: 'DEF-9012', model: 'Fiat Toro', status: 'Liberado', time: '14:15', color: 'emerald' },
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-slate-800/60">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full bg-${item.color}-500`} />
-                            <div>
-                              <span className="font-mono text-xs font-extrabold text-white tracking-widest">{item.plate}</span>
-                              <span className="text-[10px] text-slate-500 block">{item.model}</span>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <span className={`text-[10px] font-bold ${
-                              item.status === 'Liberado' ? 'text-emerald-400' : 'text-amber-400'
-                            }`}>
-                              {item.status}
-                            </span>
-                            <span className="text-[9px] text-slate-600 block">{item.time}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-500">
-                      <span className="flex items-center gap-1"><Camera className="w-3 h-3" /> 3 câmeras ativas</span>
-                      <span className="flex items-center gap-1"><Users className="w-3 h-3" /> 12 visitantes hoje</span>
-                    </div>
-                  </div>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-violet-500/20 rounded-3xl blur-xl -z-10" />
-                </motion.div>
-              </GlowCard>
-            </div>
-          </div>
-        </div>
-
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600">
-          <span className="text-[10px] font-bold uppercase tracking-widest">Role</span>
-          <ChevronDown className="w-4 h-4" />
-        </motion.div>
-      </motion.section>
-
-      <section id="stats" className="relative py-16 md:py-20 border-t border-slate-900">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="text-center"
-                >
-                  <Icon className="w-5 h-5 text-sky-400 mx-auto mb-3" />
-                  <span className="text-3xl md:text-4xl font-black text-white block">{s.value}</span>
-                  <span className="text-xs text-slate-500 font-semibold">{s.label}</span>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="relative py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/[0.03] to-transparent" />
-        <div className="mx-auto max-w-[1400px] px-6 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500/10 to-violet-500/10 border border-sky-500/20 rounded-full px-4 py-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-              <span className="text-xs font-bold text-sky-400 tracking-wide uppercase">Tudo em um só lugar</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-              Sua portaria no piloto<br />automático
-            </h2>
-            <p className="text-slate-400 text-lg font-light max-w-2xl mx-auto">
-              Enquanto você gerencia o condomínio, o Maneger cuida da portaria.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((feature, i) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.06 }}
-                  className="group relative bg-slate-900/30 border border-slate-800/40 rounded-3xl p-6 hover:bg-slate-900/50 hover:border-slate-700/50 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:via-sky-500/[0.02] transition-all duration-500" />
-                  <div className="relative flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} bg-opacity-10 flex items-center justify-center`}>
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold text-slate-600">{feature.stats}</span>
-                  </div>
-                  <h3 className="text-base font-bold text-white mb-2 relative">{feature.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed relative">{feature.desc}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-24 md:py-32 border-t border-slate-900">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-1.5">
-                <span className="text-xs font-bold text-indigo-400 tracking-wide uppercase">Na prática</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                Como funciona<br />o dia a dia?
-              </h2>
-              <div className="space-y-4">
+              <div className="grid grid-cols-4 gap-3">
                 {[
-                  { step: '01', title: 'Morador chega na portaria', desc: 'Câmera lê a placa automaticamente.' },
-                  { step: '02', title: 'Sistema identifica', desc: 'Cruzamento com banco de dados em 0.3 segundos.' },
-                  { step: '03', title: 'Cancela abre sozinha', desc: 'Sem burocracia. Sem fila. Sem papel.' },
-                  { step: '04', title: 'Tudo registrado', desc: 'Log de acesso salvo com foto, placa e horário.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 p-4 bg-slate-900/30 rounded-2xl border border-slate-800/40">
-                    <span className="text-xs font-black text-sky-400 font-mono w-8 shrink-0 pt-0.5">{item.step}</span>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">{item.title}</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
-                    </div>
-                  </div>
+                  { value: '2.000+', label: 'Condomínios', color: 'text-sky-400' },
+                  { value: '50k+', label: 'Acessos/dia', color: 'text-emerald-400' },
+                  { value: '99.9%', label: 'Uptime', color: 'text-violet-400' },
+                  { value: '0.3s', label: 'Liberação', color: 'text-amber-400' },
+                ].map((s, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
+                    className="bg-[#0d0d0f] border border-white/[0.04] rounded-[4px] p-4 text-center"
+                  >
+                    <span className={`text-lg md:text-xl font-bold tabular-nums ${s.color}`}>{s.value}</span>
+                    <span className="text-[9px] text-slate-600 block mt-1 font-mono">{s.label}</span>
+                  </motion.div>
                 ))}
               </div>
-            </motion.div>
+            </div>
+          </div>
+        </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}>
-              <div className="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-8 text-center space-y-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full flex items-center justify-center mx-auto">
-                  <Camera className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white">0.3 segundos</h3>
-                <p className="text-sm text-slate-400 max-w-xs mx-auto">
-                  Tempo médio entre a leitura da placa e a liberação da cancela.
-                </p>
-                <div className="pt-4">
-                  <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-700">
+          <motion.div animate={{ y: [0, 4, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+            <ChevronDown className="w-4 h-4" />
+          </motion.div>
+        </div>
+      </section>
+
+      <section id="cobertura" className="relative py-32 md:py-40 border-t border-white/[0.04]">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent" />
+        <div className="mx-auto max-w-[1400px] px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start"
+          >
+            <div className="space-y-10 lg:sticky lg:top-28">
+              <div>
+                <span className="text-[9px] font-mono text-slate-600 tracking-[0.2em] uppercase border border-white/10 px-3 py-1 inline-block mb-6">[Módulos]</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black leading-[0.95] tracking-tight text-white">
+                O SISTEMA<br />
+                <span className="text-white/30 font-light">COMPLETO DE</span><br />
+                PORTARIA
+              </h2>
+              <div className="space-y-6">
+                {[
+                  { icon: Scan, title: 'Leitura de Placas', desc: 'OCR integrado às câmeras. Identificação em 0.3s sem intervenção manual.' },
+                  { icon: Fingerprint, title: 'Liberação Remota', desc: 'Porteiro libera pelo painel ou app. Visitante agenda visita pelo celular.' },
+                  { icon: Users, title: 'Banco de Moradores', desc: 'Cadastro completo com veículos. Suporte a múltiplos veículos por unidade.' },
+                  { icon: BellRing, title: 'Alertas em Tempo Real', desc: 'Notificação push para moradores sobre entregas, visitas e ocorrências.' },
+                  { icon: BarChart3, title: 'Relatórios Automáticos', desc: 'Dashboard com fluxo de visitantes, horários de pico e histórico de acesso.' },
+                  { icon: Clock, title: 'Gestão de Porteiros', desc: 'Escala digital, troca de turnos e ronda com check-in. Tudo registrado.' },
+                ].map((mod, i) => {
+                  const Icon = mod.icon;
+                  return (
                     <motion.div
-                      initial={{ width: '0%' }}
-                      whileInView={{ width: '100%' }}
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 1.5, ease: 'easeOut' }}
-                      className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full"
-                    />
+                      transition={{ duration: 0.4, delay: i * 0.05 }}
+                      className="group flex gap-5 p-4 border-l-2 border-white/5 hover:border-sky-500/50 transition-all duration-300"
+                    >
+                      <Icon className="w-5 h-5 text-slate-500 mt-0.5 shrink-0 group-hover:text-sky-400 transition-colors" />
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{mod.title}</h3>
+                        <p className="text-xs text-slate-500 mt-1 font-mono leading-relaxed">{mod.desc}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-16 lg:pt-32">
+              <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-[4px] p-6">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/[0.04]">
+                  <Camera className="w-5 h-5 text-sky-400" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">Câmera • Portaria Principal</span>
+                    <span className="text-[9px] text-slate-600 font-mono">AO VIVO • 14:32:19</span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-slate-600 mt-1">
-                    <span>0s</span>
-                    <span>0.3s</span>
+                  <span className="ml-auto flex items-center gap-1.5 text-[9px] text-slate-600 font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    REC
+                  </span>
+                </div>
+                <div className="aspect-video bg-[#050508] rounded-[4px] flex items-center justify-center border border-white/[0.03] relative overflow-hidden">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+                    backgroundSize: '30px 30px',
+                  }} />
+                  <div className="relative z-10 text-center">
+                    <Camera className="w-10 h-10 text-slate-800 mx-auto mb-2" />
+                    <span className="text-[10px] text-slate-700 font-mono block">FLUXO AO VIVO • CFTV INTEGRADO</span>
                   </div>
+                  <motion.div
+                    className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-sky-500/30 to-transparent"
+                    style={{ animation: 'scanline 4s linear infinite' }}
+                  />
                 </div>
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      <section id="numbers" className="relative py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-500/[0.02] to-transparent" />
-        <div className="mx-auto max-w-[1400px] px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-xs font-bold text-emerald-400 tracking-wide uppercase">Resultados reais</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-              Números que falam
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { metric: '70%', desc: 'Redução no tempo de espera da portaria', color: 'from-sky-500 to-cyan-500' },
-              { metric: '100%', desc: 'Dos acessos registrados automaticamente', color: 'from-emerald-500 to-teal-500' },
-              { metric: '0', desc: 'Papel usado no dia a dia da portaria', color: 'from-violet-500 to-purple-500' },
-              { metric: '24/7', desc: 'Suporte técnico disponível', color: 'from-amber-500 to-orange-500' },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-slate-900/30 border border-slate-800/40 rounded-3xl p-8 flex items-center gap-6"
-              >
-                <span className={`text-5xl md:text-6xl font-black bg-gradient-to-br ${item.color} bg-clip-text text-transparent shrink-0`}>
-                  {item.metric}
-                </span>
-                <p className="text-slate-300 text-sm font-semibold">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="depoimentos" className="relative py-24 md:py-32 border-t border-slate-900">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 space-y-4">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-xs font-bold text-amber-400 tracking-wide uppercase">Quem usa, aprova</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-              O que estão falando
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { quote: 'O sistema de leitura de placas acabou com a fila na portaria. Os moradores amaram.', author: 'Ana Clara Santos', role: 'Síndica • Residencial Park', initials: 'AS' },
-              { quote: 'Setup rápido, interface intuitiva. Meu porteiro de 60 anos aprendeu a usar em 10 minutos.', author: 'Roberto Mendes', role: 'Administrador • Spazio Premium', initials: 'RM' },
-              { quote: 'O relatório de visitantes me salva todo mês. Saber exatamente quem entrou e quando é outro nível.', author: 'Juliana Costa', role: 'Gestora • Village Green', initials: 'JC' },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-slate-900/30 border border-slate-800/40 rounded-3xl p-8 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(5)].map((_, j) => (
-                      <svg key={j} className="w-4 h-4 fill-amber-400 text-amber-400" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                    ))}
-                  </div>
-                  <p className="text-slate-300 text-sm leading-relaxed mb-8">&ldquo;{t.quote}&rdquo;</p>
-                </div>
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-800/40">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center text-xs font-bold text-white">{t.initials}</div>
+              <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-[4px] p-6">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/[0.04]">
+                  <Activity className="w-5 h-5 text-emerald-400" />
                   <div>
-                    <p className="text-sm font-bold text-white">{t.author}</p>
-                    <p className="text-xs text-slate-500">{t.role}</p>
+                    <span className="text-xs font-bold text-white block">Fluxo de Acessos • Hoje</span>
+                    <span className="text-[9px] text-slate-600 font-mono">DADOS EM TEMPO REAL</span>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                <div className="space-y-3">
+                  {[
+                    { label: '07:00 - 09:00', value: 42, peak: true },
+                    { label: '09:00 - 12:00', value: 28, peak: false },
+                    { label: '12:00 - 14:00', value: 35, peak: false },
+                    { label: '14:00 - 16:00', value: 18, peak: false },
+                    { label: '16:00 - 19:00', value: 51, peak: true },
+                  ].map((h, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <span className="text-[10px] text-slate-600 font-mono w-24 shrink-0">{h.label}</span>
+                      <div className="flex-grow h-5 bg-[#050508] rounded-[2px] overflow-hidden">
+                        <motion.div
+                          initial={{ width: '0%' }}
+                          whileInView={{ width: `${(h.value / 55) * 100}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.8, delay: i * 0.1 }}
+                          className={`h-full rounded-[2px] ${h.peak ? 'bg-sky-500' : 'bg-sky-500/30'}`}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono w-8 text-right">{h.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="relative py-24 md:py-32 bg-gradient-to-b from-transparent via-sky-500/[0.02] to-transparent">
+      <section className="relative py-24 md:py-32 border-t border-white/[0.04]">
         <div className="mx-auto max-w-[1400px] px-6">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-3xl p-10 md:p-16 text-center overflow-hidden"
+            className="bg-[#0d0d0f] border border-white/[0.06] rounded-[4px] p-10 md:p-16 relative overflow-hidden"
           >
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute -top-20 -right-20 w-60 h-60 bg-sky-500/20 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: '5s' }} />
-              <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-violet-500/15 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '7s' }} />
-            </div>
-
-            <div className="relative z-10 max-w-2xl mx-auto space-y-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-sky-400 to-violet-500 rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-sky-500/20">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                5 minutos separam você<br />de uma portaria inteligente
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.03) 0%, transparent 50%)`,
+            }} />
+            <div className="relative z-10 max-w-2xl">
+              <span className="text-[9px] font-mono text-slate-600 tracking-[0.2em] uppercase border border-white/10 px-3 py-1 inline-block mb-6">[Começar]</span>
+              <h2 className="text-4xl md:text-5xl font-black leading-[0.95] tracking-tight text-white mb-6">
+                PRONTO PARA<br />
+                <span className="text-white/30 font-light">COLOCAR SEU</span><br />
+                CONDOMÍNIO<br />
+                NO CONTROLE?
               </h2>
-              <p className="text-slate-400 text-lg font-light max-w-lg mx-auto">
-                Sem contrato fidelidade. Sem taxa de implantação. Sem complicação.
+              <p className="text-sm text-slate-500 font-mono leading-relaxed mb-8 max-w-md">
+                5 minutos de configuração. Sem taxa de implantação. Sem contrato de fidelidade.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <button onClick={onStartConfig} className="group bg-gradient-to-r from-sky-500 to-violet-500 text-white px-10 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-[0.97] transition-all flex items-center justify-center gap-2">
-                  Começar Agora
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <div className="flex flex-wrap gap-3">
+                <button onClick={onStartConfig} className="bg-white text-[#0a0a0c] px-8 py-4 text-sm font-bold hover:bg-white/90 transition-all flex items-center gap-2 uppercase tracking-wider rounded-[4px]">
+                  Ativar Sistema
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                <button onClick={onEnterApp} className="border border-slate-700 text-slate-300 px-10 py-4 rounded-2xl font-bold text-sm hover:bg-slate-800/50 hover:border-slate-500 active:scale-[0.97] transition-all">
-                  Fale Conosco
+                <button onClick={onEnterApp} className="border border-white/10 text-slate-400 px-8 py-4 text-sm font-bold hover:bg-white/5 hover:text-white transition-all uppercase tracking-wider rounded-[4px]">
+                  Ver Painel
                 </button>
               </div>
             </div>
@@ -538,48 +412,23 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
         </div>
       </section>
 
-      <footer className="border-t border-slate-900 py-16">
+      <footer className="border-t border-white/[0.04] py-12">
         <div className="mx-auto max-w-[1400px] px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-base font-extrabold text-white">Condomínio <span className="text-sky-400">Maneger</span></span>
-              </div>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Portaria inteligente, gestão simplificada.
-              </p>
-              <div className="flex gap-4 text-slate-600">
-                <Github className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-                <Twitter className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-                <Instagram className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-              </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 pb-8 mb-8 border-b border-white/[0.04]">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-slate-600" />
+              <span className="text-xs font-bold uppercase text-slate-500 tracking-wider">CONDOMINIO MANAGER</span>
             </div>
-
-            {[
-              { title: 'Produto', links: ['Funcionalidades', 'Preços', 'Segurança', 'API'] },
-              { title: 'Suporte', links: ['Central de Ajuda', 'Treinamentos', 'Status', 'Contato'] },
-              { title: 'Legal', links: ['Privacidade', 'Termos de Uso', 'LGPD', 'Cookies'] },
-            ].map((col, i) => (
-              <div key={i}>
-                <h4 className="font-bold text-xs text-white uppercase tracking-wider mb-5">{col.title}</h4>
-                <ul className="space-y-3">
-                  {col.links.map((link, j) => (
-                    <li key={j}><a href="#" className="text-sm text-slate-500 hover:text-white transition-colors">{link}</a></li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            <div className="flex gap-6 text-[10px] text-slate-600 font-mono">
+              <a href="#" className="hover:text-white transition-colors">Funcionalidades</a>
+              <a href="#" className="hover:text-white transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-white transition-colors">Termos</a>
+              <a href="#" className="hover:text-white transition-colors">Suporte</a>
+            </div>
           </div>
-
-          <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-slate-600">&copy; 2026 Condomínio Maneger. Todos os direitos reservados.</p>
-            <div className="flex items-center gap-2 text-xs text-slate-600">
-              <span>Desenvolvido por</span>
-              <span className="text-slate-400 font-bold">NPX Soluções Tecnológicas</span>
-            </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-700 font-mono">
+            <span>&copy; 2026 Condomínio Manager. Todos os direitos reservados.</span>
+            <span>NPX Soluções Tecnológicas</span>
           </div>
         </div>
       </footer>
