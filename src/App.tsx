@@ -374,7 +374,7 @@ export default function App() {
                   accessLogs={accessLogs}
                   onAddAccessLog={addAccessLog}
                   onAddAlert={triggerAlert}
-                  activeShift={shifts.find(s => s.status === 'Em Andamento')}
+                  activeShift={shifts.find(s => s.dateKey === 'hoje')}
                 />
               )}
 
