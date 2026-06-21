@@ -113,7 +113,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
             <span className="text-zinc-500">CONDOMÍNIO</span><br />
             NO CONTROLE
           </h1>
-          <p className="text-base md:text-lg text-zinc-600 leading-relaxed max-w-lg mx-auto">
+          <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
             Reconhecimento de placas, liberação remota e relatórios automáticos em um painel.
           </p>
           <div className="flex gap-3 pt-2 justify-center">
