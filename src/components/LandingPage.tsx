@@ -1,11 +1,7 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { motion } from 'motion/react';
-import { Shield, LayoutDashboard, UserPlus, HelpCircle, Settings, MapPin, Globe, Share2, BellRing } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { Shield, LayoutDashboard, UserPlus, BellRing, Building2, Camera, Fingerprint, ArrowRight, ChevronDown, Sparkles, Clock, Users, CheckCircle, BarChart3, Globe, Github, Twitter, Instagram, Menu, X } from 'lucide-react';
 import { CondoConfig } from '../types';
+import { useState } from 'react';
 
 interface LandingPageProps {
   onStartConfig: () => void;
@@ -13,255 +9,546 @@ interface LandingPageProps {
   condoConfig: CondoConfig;
 }
 
-export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: LandingPageProps) {
+function FloatingOrbs() {
   return (
-    <div className="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-sky-200">
-      {/* Top Header */}
-      <header className="flex justify-between items-center w-full h-16 px-6 sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-slate-900" />
-          <span className="text-lg font-bold text-slate-900 tracking-tight">Condomínio Maneger</span>
-        </div>
-        <div className="flex items-center gap-4">
-          {condoConfig.isConfigured && (
-            <button 
-              id="btn-login-header"
-              onClick={onEnterApp}
-              className="text-sm font-semibold text-slate-700 hover:text-sky-600 hover:underline transition-all cursor-pointer"
-            >
-              {condoConfig.name}
-            </button>
-          )}
-          <button 
-            id="btn-start-header"
-            onClick={onStartConfig}
-            className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-          >
-            Fazer Login
-          </button>
-        </div>
-      </header>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute -top-40 -right-40 w-80 h-80 bg-violet-500/20 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '5s' }} />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-sky-500/15 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[150px]" />
+    </div>
+  );
+}
 
-      <main className="max-w-[1400px] w-full mx-auto px-6 py-12 flex-grow space-y-16">
-        {/* Hero Section Card & Security Sidebar Bento Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Main Hero Banner */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="col-span-12 lg:col-span-8 min-h-[480px] relative overflow-hidden rounded-3xl shadow-lg group flex flex-col justify-center px-12 text-white bg-slate-950"
-          >
-            <div className="absolute inset-0">
-              <img 
-                className="w-full h-full object-cover opacity-35 transition-transform duration-700 group-hover:scale-105" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNys25y8c_ERPwviOEReNfcFoXwIjShDHVYj0N-tSvsE5pS99B1lYxQ6UAk8z8UhgU690sD7lEni3H3_Pa8KXeo1qfSgUtdjv2xzv4yov-YRHY_8R4q6oJa5txZPckW9IWOrjIWzoYiWM7D6zbCbRsdncfnwmwA5SUb_K7GE3rBCoUBp7ZdYOuZ5i9v95KWydTPGz7XaZiEIWTck_54oeU8OCZe5AuX3bFS1VP1posbb4cefVsbx4qM0wo59n7iho06NvlEKXOPpk"
-                alt="Elite Condo Architecture"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-transparent" />
+const stats = [
+  { value: '99.9%', label: 'Uptime', icon: Clock },
+  { value: '+2k', label: 'Condomínios', icon: Building2 },
+  { value: '24/7', label: 'Suporte', icon: Users },
+  { value: '5min', label: 'Setup', icon: Sparkles },
+];
+
+const features = [
+  {
+    icon: Camera,
+    title: 'Controle de Acesso',
+    desc: 'Câmeras integradas, reconhecimento de placas e liberação remota direto do seu painel.',
+    color: 'from-sky-500 to-cyan-500',
+  },
+  {
+    icon: Fingerprint,
+    title: 'Segurança Biométrica',
+    desc: 'Identificação por digital e facial para moradores, funcionários e visitantes frequentes.',
+    color: 'from-violet-500 to-purple-500',
+  },
+  {
+    icon: BarChart3,
+    title: 'Relatórios Smart',
+    desc: 'Dashboard analítico com gráficos em tempo real sobre fluxo de visitantes e ocorrências.',
+    color: 'from-emerald-500 to-teal-500',
+  },
+  {
+    icon: BellRing,
+    title: 'Notificações Push',
+    desc: 'Alertas instantâneos para moradores sobre entregas, visitas e avisos importantes.',
+    color: 'from-amber-500 to-orange-500',
+  },
+  {
+    icon: Users,
+    title: 'Gestão de Moradores',
+    desc: 'Cadastro completo com unidades, veículos e documentos em um banco de dados centralizado.',
+    color: 'from-rose-500 to-pink-500',
+  },
+  {
+    icon: Clock,
+    title: 'Escalas Inteligentes',
+    desc: 'Gestão de turnos, trocas de plantão e checklist de ronda automatizados.',
+    color: 'from-indigo-500 to-blue-500',
+  },
+];
+
+const testimonials = [
+  {
+    quote: 'Reduzimos em 70% o tempo de espera na portaria. Os moradores amaram o sistema.',
+    author: 'Ana Clara Santos',
+    role: 'Síndica • Residencial Park',
+    avatar: 'AS',
+  },
+  {
+    quote: 'O controle de acesso por placa transformou a segurança do nosso condomínio. Indispensável!',
+    author: 'Roberto Mendes',
+    role: 'Administrador • Spazio Premium',
+    avatar: 'RM',
+  },
+  {
+    quote: 'Setup em 5 minutos e suporte incrível. Melhor decisão que tomamos para a portaria.',
+    author: 'Juliana Costa',
+    role: 'Gestora • Village Green',
+    avatar: 'JC',
+  },
+];
+
+export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: LandingPageProps) {
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <div className="bg-slate-950 text-white min-h-screen selection:bg-sky-500/30 overflow-x-hidden">
+      {/* Fixed Gradient Nav Bar */}
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="fixed top-0 left-0 right-0 z-50"
+      >
+        <div className="mx-auto max-w-[1400px] px-6">
+          <div className="flex justify-between items-center h-16 md:h-20">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-lg font-extrabold text-white tracking-tight">Condomínio <span className="text-sky-400">Maneger</span></span>
             </div>
 
-            <div className="relative z-10 max-w-xl space-y-6">
-              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white tracking-tight">
-                Gestão Inteligente para Condomínios de Elite
-              </h1>
-              <p className="text-slate-300 text-base md:text-lg font-light leading-relaxed">
-                O Condomínio Maneger oferece controle total sobre segurança, vigilância de visitantes e operações administrativas em uma única plataforma integrada e altamente intuitiva.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-2">
-                <button 
-                  id="btn-hero-register"
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Funcionalidades</a>
+              <a href="#stats" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Números</a>
+              <a href="#testimonials" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Depoimentos</a>
+              {condoConfig.isConfigured && (
+                <button onClick={onEnterApp} className="text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors">
+                  {condoConfig.name}
+                </button>
+              )}
+              <button
+                onClick={onStartConfig}
+                className="bg-white text-slate-950 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all shadow-lg shadow-white/10 active:scale-95"
+              >
+                Fazer Login
+              </button>
+            </nav>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-slate-300 hover:text-white"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-slate-800"
+          >
+            <div className="px-6 py-4 space-y-3">
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Funcionalidades</a>
+              <a href="#stats" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Números</a>
+              <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Depoimentos</a>
+              {condoConfig.isConfigured && (
+                <button onClick={() => { setMobileMenuOpen(false); onEnterApp(); }} className="block text-sm font-semibold text-sky-400 py-2">{condoConfig.name}</button>
+              )}
+              <button onClick={() => { setMobileMenuOpen(false); onStartConfig(); }} className="w-full bg-white text-slate-950 px-5 py-3 rounded-xl text-sm font-bold">Fazer Login</button>
+            </div>
+          </motion.div>
+        )}
+      </motion.header>
+
+      {/* HERO SECTION */}
+      <motion.section style={{ opacity: heroOpacity, scale: heroScale }} className="relative min-h-screen flex items-center pt-20">
+        <FloatingOrbs />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#0f172a_0%,_transparent_70%)]" />
+
+        {/* Animated grid background */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+        }} />
+
+        <div className="relative z-10 mx-auto max-w-[1400px] px-6 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+                className="space-y-6"
+              >
+                <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 rounded-full px-4 py-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                  <span className="text-xs font-bold text-sky-400 tracking-wide uppercase">Plataforma Premium de Gestão</span>
+                </div>
+
+                <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] tracking-tight">
+                  <span className="text-white">O futuro da </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-sky-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                    portaria inteligente
+                  </span>
+                </h1>
+
+                <p className="text-lg md:text-xl text-slate-400 font-light leading-relaxed max-w-lg">
+                  Controle total sobre segurança, acesso de visitantes e operações administrativas em uma plataforma unificada e intuitiva.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+                className="flex flex-wrap gap-4"
+              >
+                <button
                   onClick={onStartConfig}
-                  className="bg-white text-slate-950 px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg hover:bg-slate-100 active:scale-95 transition-all"
+                  className="group relative bg-gradient-to-r from-sky-500 to-violet-500 text-white px-8 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-[0.97] transition-all overflow-hidden"
                 >
-                  Cadastrar Novo Condomínio
+                  <span className="relative z-10 flex items-center gap-2">
+                    Começar Agora
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+
+                <button
+                  onClick={onEnterApp}
+                  className="px-8 py-4 rounded-2xl font-bold text-sm border border-slate-700 text-slate-300 hover:bg-slate-800/50 hover:border-slate-500 active:scale-[0.97] transition-all flex items-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Acessar Painel
+                </button>
+              </motion.div>
+
+              {/* Trust badges */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="flex items-center gap-6 pt-4"
+              >
+                <div className="flex -space-x-2">
+                  {['AS', 'RM', 'JC', 'LP'].map((init, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold text-slate-300">
+                      {init}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  <span className="text-slate-300 font-bold">+2.000</span> condomínios confiam
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Right - Hero Visual */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="hidden lg:block relative"
+            >
+              <div className="relative">
+                {/* Main card mockup */}
+                <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Sistema Ativo</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-slate-600" />
+                      <div className="w-2 h-2 rounded-full bg-slate-600" />
+                      <div className="w-2 h-2 rounded-full bg-slate-600" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { label: 'Visitantes Hoje', value: '12', color: 'bg-sky-500' },
+                      { label: 'Moradores Ativos', value: '86', color: 'bg-emerald-500' },
+                      { label: 'Entregas', value: '5', color: 'bg-amber-500' },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ width: 0 }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: 0.8, delay: 0.8 + i * 0.15 }}
+                        className="flex items-center justify-between bg-slate-800/50 rounded-2xl px-5 py-3.5"
+                      >
+                        <span className="text-sm text-slate-400 font-medium">{item.label}</span>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                          <span className="text-lg font-extrabold text-white">{item.value}</span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 1.4 }}
+                    className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between"
+                  >
+                    <span className="text-xs text-slate-500">Última atualização: agora</span>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      Online
+                    </span>
+                  </motion.div>
+                </div>
+
+                {/* Floating badge */}
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute -bottom-4 -left-4 bg-gradient-to-br from-sky-500 to-violet-500 rounded-2xl px-5 py-3 shadow-xl shadow-sky-500/20"
+                >
+                  <p className="text-xs font-bold text-white">Setup em 5 min ⚡</p>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest">Role</span>
+          <ChevronDown className="w-4 h-4" />
+        </motion.div>
+      </motion.section>
+
+      {/* STATS SECTION */}
+      <section id="stats" className="relative py-24 md:py-32">
+        <div className="mx-auto max-w-[1400px] px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+          >
+            {stats.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 text-center hover:bg-slate-900/80 transition-colors group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500/10 to-violet-500/10 border border-slate-800 flex items-center justify-center mx-auto mb-4 group-hover:border-sky-500/20 transition-colors">
+                    <Icon className="w-5 h-5 text-sky-400" />
+                  </div>
+                  <p className="text-3xl md:text-4xl font-extrabold text-white mb-1">{stat.value}</p>
+                  <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FEATURES SECTION */}
+      <section id="features" className="relative py-24 md:py-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/5 to-transparent" />
+        <FloatingOrbs />
+
+        <div className="mx-auto max-w-[1400px] px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16 space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 rounded-full px-4 py-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-xs font-bold text-sky-400 tracking-wide uppercase">Recursos Premium</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+              Tudo que seu condomínio precisa
+            </h2>
+            <p className="text-slate-400 text-lg font-light max-w-2xl mx-auto">
+              Uma plataforma completa com ferramentas inteligentes para gestão, segurança e portaria.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, i) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                  className="group relative bg-slate-900/40 border border-slate-800/60 rounded-3xl p-8 hover:bg-slate-900/60 hover:border-slate-700/60 transition-all duration-300"
+                >
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:via-sky-500/5 transition-all duration-500" />
+
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} bg-opacity-10 flex items-center justify-center mb-6 relative`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white mb-3 relative">{feature.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed relative">{feature.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section id="testimonials" className="relative py-24 md:py-32">
+        <div className="mx-auto max-w-[1400px] px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16 space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5">
+              <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
+              <span className="text-xs font-bold text-violet-400 tracking-wide uppercase">Depoimentos</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+              Quem usa, recomenda
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-8 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(5)].map((_, j) => (
+                      <svg key={j} className="w-4 h-4 fill-amber-400 text-amber-400" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                    ))}
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-8">&ldquo;{t.quote}&rdquo;</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center text-xs font-bold text-white">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">{t.author}</p>
+                    <p className="text-xs text-slate-500">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section className="relative py-24 md:py-32">
+        <div className="absolute inset-0 bg-gradient-to-t from-sky-500/10 via-transparent to-transparent" />
+        <div className="mx-auto max-w-[1400px] px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-3xl p-12 md:p-20 text-center overflow-hidden"
+          >
+            <FloatingOrbs />
+
+            <div className="relative z-10 max-w-2xl mx-auto space-y-8">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Pronto para modernizar<br />seu condomínio?
+              </h2>
+              <p className="text-slate-400 text-lg font-light">
+                Junte-se a mais de 2.000 condomínios que já transformaram sua gestão com o Condomínio Maneger.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <button
+                  onClick={onStartConfig}
+                  className="group bg-gradient-to-r from-sky-500 to-violet-500 text-white px-10 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+                >
+                  Começar Agora
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button
+                  onClick={onEnterApp}
+                  className="border border-slate-700 text-slate-300 px-10 py-4 rounded-2xl font-bold text-sm hover:bg-slate-800/50 hover:border-slate-500 active:scale-[0.97] transition-all"
+                >
+                  Fale Conosco
                 </button>
               </div>
             </div>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Security Focus Card */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="col-span-12 lg:col-span-4 bg-slate-900 text-white rounded-3xl p-8 flex flex-col justify-between shadow-lg relative overflow-hidden group border border-slate-800"
-          >
-            <div className="absolute -right-16 -top-16 opacity-5 pointer-events-none">
-              <Shield className="w-64 h-64 text-white" />
-            </div>
-
-            <div className="space-y-6">
-              <div className="w-12 h-12 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center border border-sky-500/20">
-                <Shield className="w-6 h-6" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-white">Segurança Inabalável</h2>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Controle de acesso seguro, registros de visitantes em tempo real e protocolos de emergência totalmente integrados à central de segurança.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-800 space-y-4">
-              <div className="flex -space-x-2.5 items-center">
-                <img 
-                  className="w-10 h-10 rounded-full border-2 border-slate-950 object-cover" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDN0-72rtlbgtAf2fUnanQpNbWsHlFMCg4fs_2ErQ_xewI9RSxgavC8ruWpXR9HuSX7ynrrZOydJjusJU2TP9uSc-xeoZcE6qbv9y5AcudycP9-QHDBM3K-ASHMyejXgEfk9b5Qlq2mm2ekvOhHPzCMfXz5jslcXmziccRn0Yjn5CvQ9IFo5PpvSc0570844twhBuJ5CNltY001WwkHFc3InBLu7glFTuBrWGn5rN8gzS2gxvi8-Mer7Iv08PP-YsiImtwAm07QdQ"
-                  alt="Security Guard Profile"
-                  referrerPolicy="no-referrer"
-                />
-                <img 
-                  className="w-10 h-10 rounded-full border-2 border-slate-950 object-cover" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkA-TJXCu5yx5a3D2ljFAFscaqTqU_BFfVKifnq117cwVtXAnKE5_wB7IbqkBicZ4MdzfUMpflOZRYnU9N0PZ0dQrKx-zLEOXst_GlJ2djpUxi_MutHj5Mvj1DVLLLpT1pUo10O1ODi64sH3BhoGZR3k83QQTwflOduk61mz-CAh_rNfXYIcxsii1UF_wdA3rUrO8LwGvaR8zpFfF9DvUQSIdQUbS0GotHo0VkC8e_kR-mbFlUws0zi2L94co2x_mLUtCtsMGXalo"
-                  alt="Admin Profile"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-950 text-xs font-bold text-slate-300">
-                  +2k
+      {/* FOOTER */}
+      <footer className="border-t border-slate-800 py-16">
+        <div className="mx-auto max-w-[1400px] px-6">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-white" />
                 </div>
+                <span className="text-base font-extrabold text-white">Condomínio <span className="text-sky-400">Maneger</span></span>
               </div>
-              <p className="text-xs text-slate-400 font-medium">
-                Aprovado por mais de 2.000 administradores em todo o país.
+              <p className="text-sm text-slate-500 leading-relaxed">
+                A solução definitiva de controle, portaria e segurança para administração residencial de elite.
               </p>
+              <div className="flex gap-4 text-slate-600">
+                <Github className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+                <Twitter className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+                <Instagram className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+              </div>
             </div>
-          </motion.div>
-        </div>
 
-        {/* Feature Bento Grid Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative overflow-hidden"
-          >
-            <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
-              <LayoutDashboard className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-950 mb-3">Dashboard Operacional</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Visualize toda a operação em um único painel. De agendamentos de áreas comuns e autorizações até relatórios estruturados de rotatividade.
-            </p>
-          </motion.div>
+            {[
+              { title: 'Plataforma', links: ['Funcionalidades', 'Segurança', 'Terminais', 'Integrações'] },
+              { title: 'Suporte', links: ['Central de Ajuda', 'Treinamentos', 'API & Devs', 'Status'] },
+              { title: 'Políticas', links: ['Privacidade', 'Termos de Uso', 'Cookies', 'LGPD'] },
+            ].map((col, i) => (
+              <div key={i}>
+                <h4 className="font-bold text-xs text-white uppercase tracking-wider mb-5">{col.title}</h4>
+                <ul className="space-y-3">
+                  {col.links.map((link, j) => (
+                    <li key={j}>
+                      <a href="#" className="text-sm text-slate-500 hover:text-white transition-colors">{link}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-slate-950 text-white rounded-3xl p-8 shadow-sm relative overflow-hidden group"
-          >
-            <div className="w-12 h-12 bg-slate-800 text-sky-400 rounded-2xl flex items-center justify-center mb-6">
-              <UserPlus className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold mb-3">Experiência do Visitante</h3>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              Check-in rápido e notificações instantâneas enviadas aos moradores, eliminando filas desnecessárias e elevando o prestígio do condomínio.
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-slate-600">
+              &copy; 2026 Condomínio Maneger. Todos os direitos reservados.
             </p>
-            <button 
-              onClick={onEnterApp}
-              className="flex items-center gap-2 text-xs font-bold text-sky-400 hover:text-sky-300 transition-all group-hover:translate-x-1"
-            >
-              Conhecer a Portaria &rarr;
-            </button>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden"
-          >
-            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
-              <BellRing className="w-6 h-6" />
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <span>Desenvolvido por</span>
+              <span className="text-slate-400 font-bold">NPX Soluções Tecnológicas</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-950 mb-3">Agilidade Operacional</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Escalas de turnos atualizadas, envio imediato de avisos emergenciais e acompanhamento visual do status do plantão com toda facilidade.
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Call To Action Banner */}
-        <section className="py-16 px-8 rounded-3xl bg-slate-900 text-slate-100 text-center relative overflow-hidden border border-slate-800">
-          <div className="absolute inset-0 opacity-5 pointer-events-none">
-            <div className="grid grid-cols-12 gap-4 h-full">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="border-r border-white/20 h-full" />
-              ))}
-            </div>
-          </div>
-          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-extrabold text-white">Pronto para elevar o padrão do seu condomínio?</h2>
-            <p className="text-slate-400 text-base font-light">
-              Junte-se a centenas de condomínios de elite que já modernizaram a sua segurança e administração utilizando o Condomínio Maneger.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <button 
-                id="btn-cta-start"
-                onClick={onStartConfig}
-                className="bg-white text-slate-950 px-10 py-3.5 rounded-xl font-bold text-sm shadow-md hover:scale-105 transition-all cursor-pointer"
-              >
-                Fazer Login
-              </button>
-              <button 
-                id="btn-cta-consult"
-                onClick={onEnterApp}
-                className="border border-slate-700 hover:border-slate-550 text-slate-200 px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all"
-              >
-                Falar com Especialista
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12 px-6 border-t border-slate-800">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="col-span-1 space-y-4">
-            <span className="text-lg font-bold text-white">Condomínio Maneger</span>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              A solução definitiva e integrada de controle, portaria e segurança para administração residencial de elite.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-bold text-xs text-white uppercase tracking-wider mb-4">Plataforma</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
-              <li><a href="#" className="hover:text-white transition-colors">Funcionalidades</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Segurança</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terminais</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Integrações</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-xs text-white uppercase tracking-wider mb-4">Suporte</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
-              <li><a href="#" className="hover:text-white transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Treinamentos</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">API & Devs</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Status do Sistema</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-xs text-white uppercase tracking-wider mb-4">Políticas</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
-              <li><a href="#" className="hover:text-white transition-colors">Privacidade</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Termos de Uso</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Cookies</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-[1440px] mx-auto border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-          <p>© 2026 Condomínio Maneger. Desenvolvido por <span className="text-white font-bold">NPX Soluções Tecnológicas</span>. Todos os direitos reservados.</p>
-          <div className="flex gap-6 text-slate-400">
-            <Globe className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-            <Share2 className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
           </div>
         </div>
       </footer>
