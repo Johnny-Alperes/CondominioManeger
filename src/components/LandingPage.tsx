@@ -26,7 +26,6 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [showSignUp, setShowSignUp] = useState(false);
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
@@ -100,31 +99,89 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
           )}
 
           {showLogin ? (
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-40 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
-                />
+            <div className="flex flex-col gap-2 py-2">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-40 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                  <input
+                    type="password"
+                    placeholder="Senha"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                    className="w-36 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
+                  />
+                </div>
+                <button onClick={handleLogin} className="text-xs bg-white text-zinc-950 px-3 py-1.5 font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">Ok</button>
+                <button onClick={() => { setShowLogin(false); setSignUpError(''); setSignUpSuccess(''); }} className="text-xs text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">X</button>
+                {loginError && <span className="text-[10px] text-red-400">{loginError}</span>}
               </div>
-              <div className="relative">
-                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
-                <input
-                  type="password"
-                  placeholder="Senha"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                  className="w-36 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
-                />
+
+              <div className="border-t border-zinc-800 pt-2 flex items-center gap-2">
+                <div className="relative">
+                  <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                  <input
+                    type="text"
+                    placeholder="Nome"
+                    value={signUpName}
+                    onChange={e => setSignUpName(e.target.value)}
+                    className="w-36 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={signUpEmail}
+                    onChange={e => setSignUpEmail(e.target.value)}
+                    className="w-40 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+                  <input
+                    type="password"
+                    placeholder="Senha"
+                    value={signUpPassword}
+                    onChange={e => setSignUpPassword(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSignUp()}
+                    className="w-36 bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-1.5 pl-8 outline-none focus:border-zinc-500"
+                  />
+                </div>
+                <button onClick={handleSignUp} className="text-xs bg-white text-zinc-950 px-3 py-1.5 font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest flex items-center gap-1">
+                  <UserPlus className="w-3 h-3" />
+                  <span>Criar</span>
+                </button>
+                {signUpError && <span className="text-[10px] text-red-400">{signUpError}</span>}
+                {signUpSuccess && <span className="text-[10px] text-emerald-400">{signUpSuccess}</span>}
               </div>
-              <button onClick={handleLogin} className="text-xs bg-white text-zinc-950 px-3 py-1.5 font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">Ok</button>
-              <button onClick={() => { setShowLogin(false); setLoginError(''); }} className="text-xs text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">X</button>
-              {loginError && <span className="text-[10px] text-red-400">{loginError}</span>}
+
+              {signUpPassword.length > 0 && (
+                <div className="flex items-center gap-4 ml-1">
+                  {[
+                    { key: 'upper', label: 'Maiúscula', ok: pwChecks.upper },
+                    { key: 'lower', label: 'Minúscula', ok: pwChecks.lower },
+                    { key: 'number', label: 'Número', ok: pwChecks.number },
+                    { key: 'special', label: 'Especial', ok: pwChecks.special },
+                  ].map(c => (
+                    <div key={c.key} className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider transition-colors ${c.ok ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                      {c.ok ? <Check className="w-2.5 h-2.5" /> : <XIcon className="w-2.5 h-2.5" />}
+                      <span>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <button onClick={() => setShowLogin(true)} className="text-xs bg-white text-zinc-950 px-4 py-1.5 font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">Entrar</button>
@@ -146,105 +203,25 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
       )}
 
       <main className="relative z-10 flex-1 flex items-center justify-center p-6">
-        {showSignUp ? (
-          <div className="w-full max-w-sm mx-auto space-y-5">
-            <div className="text-center mb-2">
-              <h2 className="text-xl font-black text-white tracking-tight">Criar Conta</h2>
-              <p className="text-xs text-zinc-400 mt-1">Inscreva-se para administrar seu condomínio.</p>
-            </div>
-
-            {signUpError && (
-              <div className="bg-red-900/40 border border-red-700 text-red-300 text-[10px] px-3 py-2 text-center tracking-wider uppercase">{signUpError}</div>
-            )}
-            {signUpSuccess && (
-              <div className="bg-emerald-900/40 border border-emerald-700 text-emerald-300 text-[10px] px-3 py-2 text-center tracking-wider uppercase">{signUpSuccess}</div>
-            )}
-
-            <div className="space-y-3">
-              <div className="relative">
-                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
-                <input
-                  type="text"
-                  placeholder="Nome completo"
-                  value={signUpName}
-                  onChange={e => setSignUpName(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div className="relative">
-                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
-                <input
-                  type="email"
-                  placeholder="E-mail"
-                  value={signUpEmail}
-                  onChange={e => setSignUpEmail(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
-                <input
-                  type="password"
-                  placeholder="Senha"
-                  value={signUpPassword}
-                  onChange={e => setSignUpPassword(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSignUp()}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
-                />
-              </div>
-
-              {signUpPassword.length > 0 && (
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-                  {[
-                    { key: 'upper', label: 'Maiúscula', ok: pwChecks.upper },
-                    { key: 'lower', label: 'Minúscula', ok: pwChecks.lower },
-                    { key: 'number', label: 'Número', ok: pwChecks.number },
-                    { key: 'special', label: 'Especial', ok: pwChecks.special },
-                  ].map(c => (
-                    <div key={c.key} className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${c.ok ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                      {c.ok ? <Check className="w-3 h-3" /> : <XIcon className="w-3 h-3" />}
-                      <span>{c.label}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <button onClick={handleSignUp} className="w-full bg-white text-zinc-950 py-2.5 text-xs font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest flex items-center justify-center gap-2">
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Registrar Conta</span>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); }} className="text-[10px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">
-                ← Voltar para Home
-              </button>
-              <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); setShowLogin(true); }} className="text-[10px] text-zinc-500 hover:text-white uppercase tracking-widest">
-                Já possui conta? <span className="font-bold text-zinc-300 hover:text-white">Entrar</span>
-              </button>
-            </div>
+        <div className="text-center space-y-6">
+          <span className="text-xs text-zinc-300 tracking-[0.3em] uppercase">Portaria Inteligente</span>
+          <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
+            SEU<br />
+            <span className="text-zinc-500">CONDOMÍNIO</span><br />
+            NO CONTROLE
+          </h1>
+          <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
+            Cadastro de moradores, reconhecimento de placas, gestão de turnos e relatórios.
+          </p>
+          <div className="flex gap-3 pt-2 justify-center">
+            <button onClick={() => setShowLogin(true)} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
+              Cadastrar Novo Condomínio
+            </button>
+            <button onClick={() => setShowLogin(true)} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
+              Cadastrar-se
+            </button>
           </div>
-        ) : (
-          <div className="text-center space-y-6">
-            <span className="text-xs text-zinc-300 tracking-[0.3em] uppercase">Portaria Inteligente</span>
-            <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
-              SEU<br />
-              <span className="text-zinc-500">CONDOMÍNIO</span><br />
-              NO CONTROLE
-            </h1>
-            <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
-              Cadastro de moradores, reconhecimento de placas, gestão de turnos e relatórios.
-            </p>
-            <div className="flex gap-3 pt-2 justify-center">
-              <button onClick={() => setShowSignUp(true)} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
-                Cadastrar Novo Condomínio
-              </button>
-              <button onClick={() => setShowSignUp(true)} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
-                Cadastrar-se
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </main>
 
       <footer className="relative z-10 flex items-center justify-between px-6 h-12 border-t border-zinc-800 text-[9px] text-zinc-700 uppercase tracking-[0.15em]">
