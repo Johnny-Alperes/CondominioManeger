@@ -161,9 +161,8 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
         }} />
 
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-8">
+          <div className="flex justify-center">
+            <div className="space-y-8 max-w-2xl text-center">
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -229,64 +228,7 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
               </motion.div>
             </div>
 
-            {/* Right - Hero Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="hidden lg:block relative"
-            >
-              <div className="relative">
-                {/* Main card mockup */}
-                <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                  
 
-                  <div className="space-y-4">
-                    {[
-                      { label: 'Visitantes Hoje', value: '12', color: 'bg-sky-500' },
-                      { label: 'Moradores Ativos', value: '86', color: 'bg-emerald-500' },
-                      { label: 'Entregas', value: '5', color: 'bg-amber-500' },
-                    ].map((item, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ width: 0 }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: 0.8, delay: 0.8 + i * 0.15 }}
-                        className="flex items-center justify-between bg-slate-800/50 rounded-2xl px-5 py-3.5"
-                      >
-                        <span className="text-sm text-slate-400 font-medium">{item.label}</span>
-                        <div className="flex items-center gap-3">
-                          <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                          <span className="text-lg font-extrabold text-white">{item.value}</span>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 1.4 }}
-                    className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between"
-                  >
-                    <span className="text-xs text-slate-500">Última atualização: agora</span>
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                      Online
-                    </span>
-                  </motion.div>
-                </div>
-
-                {/* Floating badge */}
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute -bottom-4 -left-4 bg-gradient-to-br from-sky-500 to-violet-500 rounded-2xl px-5 py-3 shadow-xl shadow-sky-500/20"
-                >
-                  <p className="text-xs font-bold text-white">Setup em 5 min ⚡</p>
-                </motion.div>
-              </div>
-            </motion.div>
           </div>
         </div>
 
