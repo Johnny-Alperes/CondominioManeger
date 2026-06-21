@@ -4,8 +4,10 @@ import { CondoConfig } from '../types';
 import { useState } from 'react';
 
 interface LandingPageProps {
+  isLoggedIn: boolean;
   onStartConfig: () => void;
   onEnterApp: () => void;
+  onLogout: () => void;
   condoConfig: CondoConfig;
 }
 
@@ -79,7 +81,7 @@ const testimonials = [
   },
 ];
 
-export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: LandingPageProps) {
+export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onLogout, condoConfig }: LandingPageProps) {
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
@@ -112,12 +114,21 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
                   {condoConfig.name}
                 </button>
               )}
-              <button
-                onClick={onStartConfig}
-                className="bg-white text-slate-950 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all shadow-lg shadow-white/10 active:scale-95"
-              >
-                Fazer Login
-              </button>
+              {isLoggedIn ? (
+                <button
+                  onClick={onLogout}
+                  className="border border-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 hover:text-white transition-all active:scale-95"
+                >
+                  Sair
+                </button>
+              ) : (
+                <button
+                  onClick={onStartConfig}
+                  className="bg-white text-slate-950 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all shadow-lg shadow-white/10 active:scale-95"
+                >
+                  Fazer Login
+                </button>
+              )}
             </nav>
 
             {/* Mobile Menu Toggle */}
@@ -143,7 +154,11 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
               {condoConfig.isConfigured && (
                 <button onClick={() => { setMobileMenuOpen(false); onEnterApp(); }} className="block text-sm font-semibold text-sky-400 py-2">{condoConfig.name}</button>
               )}
-              <button onClick={() => { setMobileMenuOpen(false); onStartConfig(); }} className="w-full bg-white text-slate-950 px-5 py-3 rounded-xl text-sm font-bold">Fazer Login</button>
+              {isLoggedIn ? (
+                <button onClick={() => { setMobileMenuOpen(false); onLogout(); }} className="w-full border border-slate-700 text-slate-300 px-5 py-3 rounded-xl text-sm font-bold hover:bg-slate-800">Sair</button>
+              ) : (
+                <button onClick={() => { setMobileMenuOpen(false); onStartConfig(); }} className="w-full bg-white text-slate-950 px-5 py-3 rounded-xl text-sm font-bold">Fazer Login</button>
+              )}
             </div>
           </motion.div>
         )}

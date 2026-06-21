@@ -266,6 +266,7 @@ export default function App() {
       {/* 1. VIEW ROUTER LOGIC */}
       {activeView === 'LANDING' && (
         <LandingPage 
+          isLoggedIn={isLoggedIn}
           onStartConfig={() => {
             if (isLoggedIn) {
               setActiveView('WIZARD');
@@ -284,6 +285,10 @@ export default function App() {
               localStorage.setItem('condo_active_view', 'LOGIN');
             }
           }} 
+          onLogout={() => {
+            setIsLoggedIn(false);
+            localStorage.setItem('condo_is_logged_in', 'false');
+          }}
           condoConfig={condoConfig}
           />
       )}
