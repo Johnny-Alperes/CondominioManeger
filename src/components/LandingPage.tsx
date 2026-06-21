@@ -124,6 +124,9 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
               Cadastrar-se
             </button>
           </div>
+          <div className="text-[9px] text-zinc-600 uppercase tracking-[0.15em] pt-6">
+            NPX Soluções Tecnológicas
+          </div>
         </div>
       </main>
 
