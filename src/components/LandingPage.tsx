@@ -108,7 +108,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
       <main className="relative z-10 flex-1 flex items-center justify-center p-6">
         <div className="text-center space-y-6">
           <span className="text-xs text-zinc-600 tracking-[0.3em] uppercase">Portaria Inteligente</span>
-          <h1 className="text-7xl md:text-9xl font-black leading-[0.85] tracking-tighter text-white">
+          <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
             SEU<br />
             <span className="text-zinc-500">CONDOMÍNIO</span><br />
             NO CONTROLE
