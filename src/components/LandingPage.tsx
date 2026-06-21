@@ -179,11 +179,6 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
                 transition={{ duration: 0.7, ease: 'easeOut' }}
                 className="space-y-6"
               >
-                <div className="inline-flex items-center gap-2 bg-sky-500/10 border border-sky-500/20 rounded-full px-4 py-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-                  <span className="text-xs font-bold text-sky-400 tracking-wide uppercase">Plataforma Premium de Gestão</span>
-                </div>
-
                 <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] tracking-tight">
                   <span className="text-white">O futuro da </span>
                   <br />
