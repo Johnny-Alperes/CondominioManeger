@@ -119,7 +119,7 @@ export default function ShiftManagement({
       return;
     }
 
-    // Set pre-configured stylish URLs matching Spazio theme
+    // Set pre-configured stylish URLs
     const preconfiguredAvatars = [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuDtbPd1IgCKdRgax6t5chvTDwtFUi_46ZajgQkfqLReYXJwrWU4ySdeHmuD_RN3ydlSa14lfNBIuF7a6WQbaxDBFzvhJLS68jJ23KBaCFvFG28pUFKAveJZeCR2-dXWVsJO3xOjDho8fQAR2DVOvesfQA_R1lsPEXS3p_rMOaSZZ2xrsXZdvrwovm0eIWwB8--Sv3V1e_Zidxcm_JnbYtjtBjok1vVsWN999-m8p6Eas4u9lPiUde3W3bFSO4XhSlIHNC_nAdVpSXo',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCsR_LYgN9zQej8BDoOcBd3Wew1-LZfxtDkU88Omh9Yt8bdNvGXvM-MD-YiXM34u2SOzA_VkNbygCbGXa9nqMcjx7lLeFDxfz2RYPtXegLINYZnhrdF5BK2Uv971QDQw3F3REmm9AdiPlN8GsRhUG1igaQntYriG9_CtEiUqU33W6hbH2agVZsjNLb7187CmbUfBacF4EWL-dFBp2PgpyFvJDSjuqa6UgjvfiQ-xNPYTo0MlKY3TJhtRCHCQTRHN3tYJ7dal4cQWdY',
@@ -523,7 +523,7 @@ export default function ShiftManagement({
 
               <div className="bg-slate-50 p-4 rounded-xl text-[11px] text-slate-550 leading-snug flex gap-2 border border-slate-100">
                 <Info className="w-5 h-5 text-slate-400 shrink-0 inline" />
-                <span>No cadastro, um avatar fardado exclusivo do Condomínio Spazio será gerado e associado automaticamente ao perfil do novo colaborador.</span>
+                <span>No cadastro, um avatar fardado exclusivo será gerado e associado automaticamente ao perfil do novo colaborador.</span>
               </div>
 
               <button

@@ -37,7 +37,7 @@ export default function Sidebar({
         <div className="flex items-center gap-2 cursor-pointer" onClick={onExit}>
           <Shield className="w-6 h-6 text-sky-400" />
           <h1 className="text-xl font-bold text-white tracking-tight leading-none">
-            {condoConfig.name || 'Spazio'}
+            {condoConfig.name || 'Condomínio'}
           </h1>
         </div>
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">

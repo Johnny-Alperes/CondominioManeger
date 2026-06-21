@@ -251,12 +251,12 @@ export default function App() {
     localStorage.removeItem('condo_occurrences');
 
     setCondoConfig(DEFAULT_CONDO_CONFIG);
-    setResidents(INITIAL_RESIDENTS);
-    setAccessLogs(INITIAL_ACCESS_LOGS);
-    setShiftSwaps(INITIAL_SHIFT_SWAPS);
-    setGuards(INITIAL_GUARDS);
-    setShifts(INITIAL_SHIFTS);
-    setOccurrences(INITIAL_OCCURRENCES);
+    setResidents([]);
+    setAccessLogs([]);
+    setShiftSwaps([]);
+    setGuards([]);
+    setShifts([]);
+    setOccurrences([]);
     setActiveView('LANDING');
   };
 
@@ -276,8 +276,13 @@ export default function App() {
             }
           }} 
           onEnterApp={() => {
-            setActiveView('CONSOLE');
-            localStorage.setItem('condo_active_view', 'CONSOLE');
+            if (isLoggedIn) {
+              setActiveView('CONSOLE');
+              localStorage.setItem('condo_active_view', 'CONSOLE');
+            } else {
+              setActiveView('LOGIN');
+              localStorage.setItem('condo_active_view', 'LOGIN');
+            }
           }} 
           condoConfig={condoConfig}
           />

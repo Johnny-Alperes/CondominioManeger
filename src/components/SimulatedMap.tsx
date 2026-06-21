@@ -117,7 +117,7 @@ export default function SimulatedMap({ address, condoName }: SimulatedMapProps) 
               <text x="50" y="144" fill="#cbd5e1" className="text-[9px] font-bold">{streetName}</text>
               <text x="238" y="50" fill="#64748b" className="text-[8px] font-bold">Q. 04</text>
               <text x="238" y="110" fill="#64748b" className="text-[8px] font-bold">Q. 05</text>
-              <text x="50" y="215" fill="#64748b" className="text-[10px] font-bold font-sans opacity-70">Condomínio Spazio Area</text>
+              <text x="50" y="215" fill="#64748b" className="text-[10px] font-bold font-sans opacity-70">{condoName || 'Condomínio'} Area</text>
             </svg>
           )}
 
@@ -237,7 +237,7 @@ export default function SimulatedMap({ address, condoName }: SimulatedMapProps) 
 
             {/* Premium Float Tooltip Card */}
             <div className="absolute top-[48px] bg-slate-900/95 border border-slate-700/70 rounded-xl px-3 py-2 text-center shadow-2xl w-48 backdrop-blur-md opacity-90">
-              <h5 className="text-[10px] font-extrabold text-white truncate uppercase tracking-wider">{condoName || 'Condomínio Spazio'}</h5>
+              <h5 className="text-[10px] font-extrabold text-white truncate uppercase tracking-wider">{condoName || 'Condomínio'}</h5>
               <p className="text-[8px] text-slate-350 truncate mt-0.5 font-semibold text-slate-300">{streetName || 'Rua Principal'}</p>
               <p className="text-[7px] text-slate-450 font-mono text-slate-400 mt-0.5">{neighborhood}</p>
             </div>

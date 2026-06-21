@@ -23,13 +23,15 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
           <span className="text-lg font-bold text-slate-900 tracking-tight">Condomínio Maneger</span>
         </div>
         <div className="flex items-center gap-4">
-          <button 
-            id="btn-login-header"
-            onClick={onEnterApp}
-            className="text-sm font-semibold text-slate-700 hover:text-sky-600 hover:underline transition-all cursor-pointer"
-          >
-            {condoConfig.name}
-          </button>
+          {condoConfig.isConfigured && (
+            <button 
+              id="btn-login-header"
+              onClick={onEnterApp}
+              className="text-sm font-semibold text-slate-700 hover:text-sky-600 hover:underline transition-all cursor-pointer"
+            >
+              {condoConfig.name}
+            </button>
+          )}
           <button 
             id="btn-start-header"
             onClick={onStartConfig}
