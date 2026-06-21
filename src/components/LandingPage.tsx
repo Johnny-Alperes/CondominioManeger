@@ -56,7 +56,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
           {isLoggedIn ? (
             <button onClick={onEnterApp} className="text-xs text-zinc-300 hover:text-white uppercase tracking-widest transition-colors">{condoConfig.name || 'Condomínio'}</button>
           ) : (
-            <button onClick={onStartConfig} className="text-xs text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">Acessar</button>
+            <button onClick={onStartConfig} className="text-xs text-zinc-300 hover:text-white uppercase tracking-widest transition-colors">Acessar</button>
           )}
 
           {showLogin ? (
@@ -99,7 +99,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
 
       {menu && (
         <div className="relative z-20 bg-zinc-950 border-b border-zinc-800 px-6 py-4 space-y-3 md:hidden">
-          <button onClick={() => { setMenu(false); onStartConfig(); }} className="block text-xs text-zinc-400 uppercase tracking-widest">Acessar</button>
+          <button onClick={() => { setMenu(false); onStartConfig(); }} className="block text-xs text-zinc-300 uppercase tracking-widest">Acessar</button>
           <button onClick={() => { setMenu(false); onEnterApp(); }} className="block w-full text-xs bg-white text-zinc-950 px-4 py-2 font-bold uppercase tracking-widest">Entrar</button>
           {isLoggedIn && <button onClick={() => { setMenu(false); onLogout(); }} className="block text-xs text-zinc-600 uppercase tracking-widest">Sair</button>}
         </div>
@@ -107,7 +107,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
 
       <main className="relative z-10 flex-1 flex items-center justify-center p-6">
         <div className="text-center space-y-6">
-          <span className="text-xs text-zinc-600 tracking-[0.3em] uppercase">Portaria Inteligente</span>
+          <span className="text-xs text-zinc-300 tracking-[0.3em] uppercase">Portaria Inteligente</span>
           <h1 className="text-5xl md:text-8xl font-black leading-[0.85] tracking-tighter text-white">
             SEU<br />
             <span className="text-zinc-500">CONDOMÍNIO</span><br />
@@ -120,7 +120,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
             <button onClick={onStartConfig} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
               Cadastrar Novo Condomínio
             </button>
-            <button onClick={onEnterApp} className="border border-zinc-800 text-zinc-500 px-8 py-4 text-base font-bold hover:border-zinc-600 hover:text-zinc-300 transition-all uppercase tracking-widest">
+            <button onClick={onEnterApp} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
               Cadastrar-se
             </button>
           </div>
