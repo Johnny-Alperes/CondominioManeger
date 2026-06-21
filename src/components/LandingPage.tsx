@@ -129,7 +129,7 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
 
       <footer className="relative z-10 flex items-center justify-between px-6 h-12 border-t border-zinc-800 text-[9px] text-zinc-700 uppercase tracking-[0.15em]">
         <span>&copy; 2026</span>
-        <span>NPX</span>
+        <span>NPX Soluções Tecnológicas</span>
       </footer>
     </div>
   );
