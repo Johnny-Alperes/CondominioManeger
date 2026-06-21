@@ -19,13 +19,6 @@ function FloatingOrbs() {
   );
 }
 
-const stats = [
-  { value: '99.9%', label: 'Uptime', icon: Clock },
-  { value: '+2k', label: 'Condomínios', icon: Building2 },
-  { value: '24/7', label: 'Suporte', icon: Users },
-  { value: '5min', label: 'Setup', icon: Sparkles },
-];
-
 const features = [
   {
     icon: Camera,
@@ -113,7 +106,6 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Funcionalidades</a>
-              <a href="#stats" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Números</a>
               <a href="#testimonials" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Depoimentos</a>
               {condoConfig.isConfigured && (
                 <button onClick={onEnterApp} className="text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors">
@@ -147,7 +139,6 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
           >
             <div className="px-6 py-4 space-y-3">
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Funcionalidades</a>
-              <a href="#stats" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Números</a>
               <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-slate-300 hover:text-white py-2">Depoimentos</a>
               {condoConfig.isConfigured && (
                 <button onClick={() => { setMobileMenuOpen(false); onEnterApp(); }} className="block text-sm font-semibold text-sky-400 py-2">{condoConfig.name}</button>
@@ -311,38 +302,6 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
       </motion.section>
 
       {/* STATS SECTION */}
-      <section id="stats" className="relative py-24 md:py-32">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-            {stats.map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 text-center hover:bg-slate-900/80 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500/10 to-violet-500/10 border border-slate-800 flex items-center justify-center mx-auto mb-4 group-hover:border-sky-500/20 transition-colors">
-                    <Icon className="w-5 h-5 text-sky-400" />
-                  </div>
-                  <p className="text-3xl md:text-4xl font-extrabold text-white mb-1">{stat.value}</p>
-                  <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
-      </section>
-
       {/* FEATURES SECTION */}
       <section id="features" className="relative py-24 md:py-32">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/5 to-transparent" />
