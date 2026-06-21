@@ -253,17 +253,7 @@ export default function LandingPage({ onStartConfig, onEnterApp, condoConfig }: 
               <div className="relative">
                 {/* Main card mockup */}
                 <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Sistema Ativo</span>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-slate-600" />
-                      <div className="w-2 h-2 rounded-full bg-slate-600" />
-                      <div className="w-2 h-2 rounded-full bg-slate-600" />
-                    </div>
-                  </div>
+                  
 
                   <div className="space-y-4">
                     {[
