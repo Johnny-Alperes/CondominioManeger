@@ -1,6 +1,6 @@
-import { Shield, Menu, X, Mail, Lock, User, UserPlus } from 'lucide-react';
+import { Shield, Menu, X, Mail, Lock, User, UserPlus, Check, X as XIcon } from 'lucide-react';
 import { CondoConfig } from '../types';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 interface LandingPageProps {
   isLoggedIn: boolean;
@@ -32,6 +32,13 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState('');
+
+  const pwChecks = useMemo(() => ({
+    upper: /[A-Z]/.test(signUpPassword),
+    lower: /[a-z]/.test(signUpPassword),
+    number: /[0-9]/.test(signUpPassword),
+    special: /[^A-Za-z0-9]/.test(signUpPassword),
+  }), [signUpPassword]);
 
   const handleSignUp = () => {
     setSignUpError('');
@@ -178,22 +185,44 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
                 <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
                 <input
                   type="password"
-                  placeholder="Senha (mín. 6 caracteres)"
+                  placeholder="Senha"
                   value={signUpPassword}
                   onChange={e => setSignUpPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSignUp()}
                   className="w-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 px-2.5 py-2 pl-8 outline-none focus:border-zinc-500"
                 />
               </div>
+
+              {signUpPassword.length > 0 && (
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                  {[
+                    { key: 'upper', label: 'Maiúscula', ok: pwChecks.upper },
+                    { key: 'lower', label: 'Minúscula', ok: pwChecks.lower },
+                    { key: 'number', label: 'Número', ok: pwChecks.number },
+                    { key: 'special', label: 'Especial', ok: pwChecks.special },
+                  ].map(c => (
+                    <div key={c.key} className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${c.ok ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                      {c.ok ? <Check className="w-3 h-3" /> : <XIcon className="w-3 h-3" />}
+                      <span>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <button onClick={handleSignUp} className="w-full bg-white text-zinc-950 py-2.5 text-xs font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest flex items-center justify-center gap-2">
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>Registrar Conta</span>
               </button>
             </div>
 
-            <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); }} className="block mx-auto text-[10px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">
-              Voltar
-            </button>
+            <div className="flex items-center justify-between pt-2">
+              <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); }} className="text-[10px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest">
+                ← Voltar para Home
+              </button>
+              <button onClick={() => { setShowSignUp(false); setSignUpError(''); setSignUpSuccess(''); setShowLogin(true); }} className="text-[10px] text-zinc-500 hover:text-white uppercase tracking-widest">
+                Já possui conta? <span className="font-bold text-zinc-300 hover:text-white">Entrar</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="text-center space-y-6">
@@ -204,10 +233,10 @@ export default function LandingPage({ isLoggedIn, onStartConfig, onEnterApp, onL
               NO CONTROLE
             </h1>
             <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-lg mx-auto">
-              Reconhecimento de placas, liberação remota e relatórios automáticos em um painel.
+              Cadastro de moradores, reconhecimento de placas, gestão de turnos e relatórios.
             </p>
             <div className="flex gap-3 pt-2 justify-center">
-              <button onClick={onStartConfig} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
+              <button onClick={() => setShowSignUp(true)} className="bg-white text-zinc-950 px-8 py-4 text-base font-bold hover:bg-zinc-200 transition-all uppercase tracking-widest">
                 Cadastrar Novo Condomínio
               </button>
               <button onClick={() => setShowSignUp(true)} className="border border-zinc-600 text-zinc-300 px-8 py-4 text-base font-bold hover:border-zinc-500 hover:text-white transition-all uppercase tracking-widest">
